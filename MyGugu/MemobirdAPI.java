@@ -6,7 +6,10 @@ package MyGugu;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
@@ -14,13 +17,11 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Scanner;
 
 public class MemobirdAPI	//此方法同时支持GET/POST
 {
-	private String printContent = "";	//打印内容的队列
-	private int theNumberOfContent = 0;	
-	
-	public String setUserBind()	//用户绑定
+	public String setUserBind()			//用户绑定
 	{
 		String url = "http://open.memobird.cn/home/setuserbind";
 		String timeStamp = new TimeStamp().getTimeStamp();
@@ -30,31 +31,66 @@ public class MemobirdAPI	//此方法同时支持GET/POST
 						"&useridentifying=" + MyInfo.userIdentifying;
 		String realUrl = url+"?"+param;
 		
-		return  Network.getToMemobird(realUrl);		
+		return  Network.getToMemobird(realUrl);	
+		//下面这个是用post方法
 		//return Network.postToMemobird(url, param);
 	}
 	
-	public String printPaper()
+	public String printText(String gbk)	//打印字符串
+	{
+		return print("T:" + EncodeAndDecode.gbkToBase64(gbk));
+	}
+	
+	public String printText(File textFile)
+	{
+		if(!isGBKCode(textFile))
+			return "不是GBK编码的文本文件";
+		
+		String result = "";
+		try
+		{
+			Scanner scanner = new Scanner(textFile);
+			while(scanner.hasNextLine())
+				result +=scanner.nextLine() + "\n\n";
+			scanner.close();
+		} catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		}
+		if(result.isEmpty())
+			return null;
+		
+		//这里是一个功能不太完整的将半角空格转换为全角空格的功能
+		char[] d2s = result.toCharArray();
+		for(int i = 0; i < d2s.length; i++)
+			if(d2s[i]==32)
+				d2s[i]=12288;
+		
+		//System.out.println(result);
+		return print("T:" + EncodeAndDecode.gbkToBase64(result));
+	}
+	
+	public String printPic(File picFile)//打印图片文件
+	{
+		return print("P:" + EncodeAndDecode.picToBase64(picFile));
+	}
+	
+	protected static String print(String base64)	//打印base64方法
 	{
 		String result;
 		String url = "http://open.memobird.cn/home/printpaper";
 		String timeStamp = new TimeStamp().getTimeStamp();
 		String param = "ak=" + MyInfo.ak +
 						"&timestamp=" + timeStamp + 
-						"&printcontent=" + printContent + 
+						"&printcontent=" + base64 + 
 						"&memobirdID=" + MyInfo.memobirdID +
 						"&userID=" + MyInfo.userID;
-		
 		String str = Network.postToMemobird(url, param);
 		result = EncodeAndDecode.jsonReader(str, "printcontentid");
-		
-		//打印成功之后清除打印缓存和计数器（也可以备份到本地哇）
-		printContent="";
-		theNumberOfContent=0;
 		return result;
 	}
 
-	public Boolean getPrintStatus(String printContentID)	//获取打印状态，通过唯一的打印任务号码
+	public static Boolean getPrintStatus(String printContentID)	//获取打印状态，通过唯一的打印任务号码
 	{
 		String result = "";
 		String url = "http://open.memobird.cn/home/getprintstatus";
@@ -73,30 +109,28 @@ public class MemobirdAPI	//此方法同时支持GET/POST
 			return false;
 	}
 	
-	public int addPrintContent(String text)		//向打印队列增加内容
+	public boolean isGBKCode(File file)
 	{
-		if(text.isEmpty())
-			return theNumberOfContent;
-		if(theNumberOfContent!=0)
-			printContent+="|";
-		printContent += "T:" + EncodeAndDecode.gbkToBase64(text);
-		
-		theNumberOfContent++;
-		return theNumberOfContent;
-	}
-	
-	public int addPrintContent(File picFile)	//向打印队列增加图片
-	{
-		if(!picFile.canRead())
-			return theNumberOfContent;
-		
-		if(theNumberOfContent!=0)
-			printContent+="|";
-		printContent += "P:" + EncodeAndDecode.picToBase64(picFile);	//此函数尚未实现
-
-		theNumberOfContent++;
-		return theNumberOfContent;
-	}
+		try
+		{
+			InputStream inputStream = new FileInputStream(file);
+			byte[] b=new byte[3];  
+			inputStream.read(b);  
+			inputStream.close();  
+			if(b[0]==-17&&b[1]==-69&&b[2]==-65)  
+				return false;  
+			else 
+				return true;  
+		} 
+		catch (FileNotFoundException e)
+		{
+			e.printStackTrace();
+		} catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		return false;
+	} 
 }
 
 class EncodeAndDecode	//编码及解码
@@ -104,7 +138,13 @@ class EncodeAndDecode	//编码及解码
 	public static String gbkToBase64(String gbk)	//gbk到base64编码
 	{
 		//自己造一个轮子吧，不是很难，用到位处理的知识
-		byte[] ch = gbk.getBytes();
+		
+		byte[] temp = gbk.getBytes();
+		short ch[] = new short[temp.length];
+		
+		for(int i = 0; i < temp.length; i++)
+			ch[i] = (short)(temp[i]&0xFF);
+		
 		int quote = ch.length / 3;
 		int remain = ch.length % 3;
 		byte[] coded;
@@ -156,6 +196,7 @@ class EncodeAndDecode	//编码及解码
 		}
 		String base64 = new String(coded);
 		
+		//return gbk;
 		return base64;
 	}
 	
@@ -291,17 +332,17 @@ class Network	//网络类，封装了GET和POST方法
 		}
 		return result;
 	}
-	
 }
 
 class TimeStamp		//生成时间戳
 {
 	private SimpleDateFormat dFormat1,dFormat2;	 	//两个对象分别产生日期和时间，只用一个对象无法解决中间的空格编码问题	
 	private String value;
+	private Date date = new Date();
 	
 	public TimeStamp()
 	{
-		Date date = new Date();
+		
 		dFormat1 = new SimpleDateFormat("yyyy-MM-dd");
 		dFormat2 = new SimpleDateFormat("HH:mm:ss");
 		value = dFormat1.format(date) + "%20" + dFormat2.format(date);	//这里是个坑，URL类没有编码url的功能，需要用%20代替空格
@@ -315,7 +356,8 @@ class TimeStamp		//生成时间戳
 	@Override
 	public String toString()
 	{
-		return value;
+		SimpleDateFormat dFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return dFormat.format(date);
 	}
 }
 
@@ -325,6 +367,7 @@ final class MyInfo		//个人信息
 	public static String memobirdID = "";			//咕咕机的设备编号
 	public static String userIdentifying = "";				//咕咕号
 	public static String userID = "";							//第一次绑定时获得
-	public static String cookie = "";	//本地cookies
+	public static String cookie = "";
 }
+
 
