@@ -1,7 +1,7 @@
 package MyGugu;
 /*
- * ±¾APIÍêÈ«ÓÃJavaºËĞÄÀà¿âÊµÏÖ£¬ÆäÖĞ°üº¬ÁË²»ÉÙÂÖ×Ó£¬´¿ÊôÁ·ÊÖÓÃ°É
- * 2017-10-31
+ * æœ¬APIå®Œå…¨ç”¨Javaæ ¸å¿ƒç±»åº“å®ç°ï¼Œå…¶ä¸­åŒ…å«äº†ä¸å°‘è½®å­ï¼Œçº¯å±ç»ƒæ‰‹ç”¨å§
+ * 2017-11-5
  * */
 
 import java.io.BufferedReader;
@@ -19,9 +19,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
+public class MemobirdAPI	//æ­¤æ–¹æ³•åŒæ—¶æ”¯æŒGET/POST
 {
-	public String setUserBind()			//ÓÃ»§°ó¶¨
+	public String setUserBind()			//ç”¨æˆ·ç»‘å®š
 	{
 		String url = "http://open.memobird.cn/home/setuserbind";
 		String timeStamp = new TimeStamp().getTimeStamp();
@@ -32,11 +32,11 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 		String realUrl = url+"?"+param;
 		
 		return  Network.getToMemobird(realUrl);	
-		//ÏÂÃæÕâ¸öÊÇÓÃpost·½·¨
+		//ä¸‹é¢è¿™ä¸ªæ˜¯ç”¨postæ–¹æ³•
 		//return Network.postToMemobird(url, param);
 	}
 	
-	public String printText(String gbk)	//´òÓ¡×Ö·û´®
+	public String printText(String gbk)	//æ‰“å°å­—ç¬¦ä¸²
 	{
 		return print("T:" + EncodeAndDecode.gbkToBase64(gbk));
 	}
@@ -44,7 +44,7 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 	public String printText(File textFile)
 	{
 		if(!isGBKCode(textFile))
-			return "²»ÊÇGBK±àÂëµÄÎÄ±¾ÎÄ¼ş";
+			return "ä¸æ˜¯GBKç¼–ç çš„æ–‡æœ¬æ–‡ä»¶";
 		
 		String result = "";
 		try
@@ -60,7 +60,7 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 		if(result.isEmpty())
 			return null;
 		
-		//ÕâÀïÊÇÒ»¸ö¹¦ÄÜ²»Ì«ÍêÕûµÄ½«°ë½Ç¿Õ¸ñ×ª»»ÎªÈ«½Ç¿Õ¸ñµÄ¹¦ÄÜ
+		//è¿™é‡Œæ˜¯ä¸€ä¸ªåŠŸèƒ½ä¸å¤ªå®Œæ•´çš„å°†åŠè§’ç©ºæ ¼è½¬æ¢ä¸ºå…¨è§’ç©ºæ ¼çš„åŠŸèƒ½
 		char[] d2s = result.toCharArray();
 		for(int i = 0; i < d2s.length; i++)
 			if(d2s[i]==32)
@@ -70,12 +70,12 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 		return print("T:" + EncodeAndDecode.gbkToBase64(result));
 	}
 	
-	public String printPic(File picFile)//´òÓ¡Í¼Æ¬ÎÄ¼ş
+	public String printPic(File picFile)//æ‰“å°å›¾ç‰‡æ–‡ä»¶
 	{
 		return print("P:" + EncodeAndDecode.picToBase64(picFile));
 	}
 	
-	protected static String print(String base64)	//´òÓ¡base64·½·¨
+	protected static String print(String base64)	//æ‰“å°base64æ–¹æ³•
 	{
 		String result;
 		String url = "http://open.memobird.cn/home/printpaper";
@@ -90,7 +90,7 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 		return result;
 	}
 
-	public static Boolean getPrintStatus(String printContentID)	//»ñÈ¡´òÓ¡×´Ì¬£¬Í¨¹ıÎ¨Ò»µÄ´òÓ¡ÈÎÎñºÅÂë
+	public static Boolean getPrintStatus(String printContentID)	//è·å–æ‰“å°çŠ¶æ€ï¼Œé€šè¿‡å”¯ä¸€çš„æ‰“å°ä»»åŠ¡å·ç 
 	{
 		String result = "";
 		String url = "http://open.memobird.cn/home/getprintstatus";
@@ -133,11 +133,11 @@ public class MemobirdAPI	//´Ë·½·¨Í¬Ê±Ö§³ÖGET/POST
 	} 
 }
 
-class EncodeAndDecode	//±àÂë¼°½âÂë
+class EncodeAndDecode	//ç¼–ç åŠè§£ç 
 {
-	public static String gbkToBase64(String gbk)	//gbkµ½base64±àÂë
+	public static String gbkToBase64(String gbk)	//gbkåˆ°base64ç¼–ç 
 	{
-		//×Ô¼ºÔìÒ»¸öÂÖ×Ó°É£¬²»ÊÇºÜÄÑ£¬ÓÃµ½Î»´¦ÀíµÄÖªÊ¶
+		//è‡ªå·±é€ ä¸€ä¸ªè½®å­å§ï¼Œä¸æ˜¯å¾ˆéš¾ï¼Œç”¨åˆ°ä½å¤„ç†çš„çŸ¥è¯†
 		
 		byte[] temp = gbk.getBytes();
 		short ch[] = new short[temp.length];
@@ -148,19 +148,19 @@ class EncodeAndDecode	//±àÂë¼°½âÂë
 		int quote = ch.length / 3;
 		int remain = ch.length % 3;
 		byte[] coded;
-		if(remain!=0)	//ÆäÊµ¾ÍÊÇÏòÉÏÈ¡Õû£¬½øÒ»·¨
+		if(remain!=0)	//å…¶å®å°±æ˜¯å‘ä¸Šå–æ•´ï¼Œè¿›ä¸€æ³•
 			coded = new byte[quote*4 + 4];
 		else 
 			coded = new byte[quote*4];
 		
-		for(int i = 0; i < quote; i++)	//Í¨¹ıÎ»ÔËËã£¬½«3ByteµÄÊı¾İ±àÂë³É4*6bitµÄ×Ö·û£¬²»ÓÃ³Ë³ı·¨£¨ÒòÎªÌ«ÂıÁË£©
+		for(int i = 0; i < quote; i++)	//é€šè¿‡ä½è¿ç®—ï¼Œå°†3Byteçš„æ•°æ®ç¼–ç æˆ4*6bitçš„å­—ç¬¦ï¼Œä¸ç”¨ä¹˜é™¤æ³•ï¼ˆå› ä¸ºå¤ªæ…¢äº†ï¼‰
 		{
 			coded[4*i] = (byte) (ch[3*i]>>2);
 			coded[4*i+1] = (byte)(((ch[3*i]&3)<<4) + (ch[3*i+1]>>4));
 			coded[4*i+2] = (byte)(((ch[3*i+1]&15)<<2) + (ch[3*i+2]>>6));
 			coded[4*i+3] = (byte)(ch[3*i+2]&63);
 		}
-		switch(remain)	//´¦ÀíÎ²°ÍÉÏµÄÊı¾İ
+		switch(remain)	//å¤„ç†å°¾å·´ä¸Šçš„æ•°æ®
 		{
 		default:
 		case 0:
@@ -179,7 +179,7 @@ class EncodeAndDecode	//±àÂë¼°½âÂë
 			break;
 		}
 		
-		for(int i = 0; i < coded.length; i++)	//½«base64ÂëÓ³Éäµ½ASCIIÂë
+		for(int i = 0; i < coded.length; i++)	//å°†base64ç æ˜ å°„åˆ°ASCIIç 
 		{
 			if(coded[i]<26)
 				coded[i]+=65;
@@ -203,18 +203,18 @@ class EncodeAndDecode	//±àÂë¼°½âÂë
 	public static String picToBase64(File file)
 	{
 		/*
-		 *»¹Ã»ÏëºÃÔõÃ´´¦Àí
-		 *³õ²½´òËãÖ§³ÖJPEGºÍBMP¸ñÊ½Í¼Æ¬
-		 *µÚÒ»²½ÊÇÑ¹ËõÉ«Óò£¬Ñ¹Ëõµ½µ¥Í¨µÀ8bit»Ò¶ÈÍ¼
-		 *µÚ¶ş²½ÊÇÑ¹ËõÍ¼Æ¬´óĞ¡£¬ÖÁÉÙÓĞÒ»±ß²»³¬¹ı120px
-		 *µÚÈı²½ÊÇ½øĞĞbase64±àÂë£¬·µ»ØÒ»¸ö×Ö·û´®
+		 *è¿˜æ²¡æƒ³å¥½æ€ä¹ˆå¤„ç†
+		 *åˆæ­¥æ‰“ç®—æ”¯æŒJPEGå’ŒBMPæ ¼å¼å›¾ç‰‡
+		 *ç¬¬ä¸€æ­¥æ˜¯å‹ç¼©è‰²åŸŸï¼Œå‹ç¼©åˆ°å•é€šé“8bitç°åº¦å›¾
+		 *ç¬¬äºŒæ­¥æ˜¯å‹ç¼©å›¾ç‰‡å¤§å°ï¼Œè‡³å°‘æœ‰ä¸€è¾¹ä¸è¶…è¿‡120px
+		 *ç¬¬ä¸‰æ­¥æ˜¯è¿›è¡Œbase64ç¼–ç ï¼Œè¿”å›ä¸€ä¸ªå­—ç¬¦ä¸²
 		*/
 		return null;
 	}
 	
-	public static String jsonReader(String json, String key)	//json½âÎö£¬Ïë×ö³ÉÀàËÆÓÚPythonÖĞµÄdictionaryÄÇÑù
+	public static String jsonReader(String json, String key)	//jsonè§£æï¼Œæƒ³åšæˆç±»ä¼¼äºPythonä¸­çš„dictionaryé‚£æ ·
 	{
-		//×Ô¼ºÔìÁËÒ»¸öĞ¡ÂÖ×Ó£¬Ö»Âú×ãÕâ¸öAPIÊ¹ÓÃ
+		//è‡ªå·±é€ äº†ä¸€ä¸ªå°è½®å­ï¼Œåªæ»¡è¶³è¿™ä¸ªAPIä½¿ç”¨
 		int i = json.indexOf(key);
 		if(i<0)
 			return null;
@@ -228,7 +228,7 @@ class EncodeAndDecode	//±àÂë¼°½âÂë
 	}
 }
 
-class Network	//ÍøÂçÀà£¬·â×°ÁËGETºÍPOST·½·¨
+class Network	//ç½‘ç»œç±»ï¼Œå°è£…äº†GETå’ŒPOSTæ–¹æ³•
 {
 	public static String getToMemobird(String url)
 	{
@@ -241,7 +241,7 @@ class Network	//ÍøÂçÀà£¬·â×°ÁËGETºÍPOST·½·¨
 			getUrl = new URL(url);
 			URLConnection urlConnection;
 			urlConnection = getUrl.openConnection();
-			//ÉèÖÃhttp±¨ÎÄÍ·²¿
+			//è®¾ç½®httpæŠ¥æ–‡å¤´éƒ¨
 			urlConnection.setRequestProperty("Connection","keep-alive");
 			urlConnection.setRequestProperty("user-agent", "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.62 Safari/537.36");
 			urlConnection.setRequestProperty("Upgrade-Insecure-Requests", "1");
@@ -334,9 +334,9 @@ class Network	//ÍøÂçÀà£¬·â×°ÁËGETºÍPOST·½·¨
 	}
 }
 
-class TimeStamp		//Éú³ÉÊ±¼ä´Á
+class TimeStamp		//ç”Ÿæˆæ—¶é—´æˆ³
 {
-	private SimpleDateFormat dFormat1,dFormat2;	 	//Á½¸ö¶ÔÏó·Ö±ğ²úÉúÈÕÆÚºÍÊ±¼ä£¬Ö»ÓÃÒ»¸ö¶ÔÏóÎŞ·¨½â¾öÖĞ¼äµÄ¿Õ¸ñ±àÂëÎÊÌâ	
+	private SimpleDateFormat dFormat1,dFormat2;	 	//ä¸¤ä¸ªå¯¹è±¡åˆ†åˆ«äº§ç”Ÿæ—¥æœŸå’Œæ—¶é—´ï¼Œåªç”¨ä¸€ä¸ªå¯¹è±¡æ— æ³•è§£å†³ä¸­é—´çš„ç©ºæ ¼ç¼–ç é—®é¢˜	
 	private String value;
 	private Date date = new Date();
 	
@@ -345,7 +345,7 @@ class TimeStamp		//Éú³ÉÊ±¼ä´Á
 		
 		dFormat1 = new SimpleDateFormat("yyyy-MM-dd");
 		dFormat2 = new SimpleDateFormat("HH:mm:ss");
-		value = dFormat1.format(date) + "%20" + dFormat2.format(date);	//ÕâÀïÊÇ¸ö¿Ó£¬URLÀàÃ»ÓĞ±àÂëurlµÄ¹¦ÄÜ£¬ĞèÒªÓÃ%20´úÌæ¿Õ¸ñ
+		value = dFormat1.format(date) + "%20" + dFormat2.format(date);	//è¿™é‡Œæ˜¯ä¸ªå‘ï¼ŒURLç±»æ²¡æœ‰ç¼–ç urlçš„åŠŸèƒ½ï¼Œéœ€è¦ç”¨%20ä»£æ›¿ç©ºæ ¼
 	}
 	
 	public String getTimeStamp()
@@ -361,12 +361,12 @@ class TimeStamp		//Éú³ÉÊ±¼ä´Á
 	}
 }
 
-final class MyInfo		//¸öÈËĞÅÏ¢
+final class MyInfo		//ä¸ªäººä¿¡æ¯
 {
-	public static String ak = "";	//¿ª·¢Õßaccess key
-	public static String memobirdID = "";			//¹¾¹¾»úµÄÉè±¸±àºÅ
-	public static String userIdentifying = "";				//¹¾¹¾ºÅ
-	public static String userID = "";							//µÚÒ»´Î°ó¶¨Ê±»ñµÃ
+	public static String ak = "";	//å¼€å‘è€…access key
+	public static String memobirdID = "";			//å’•å’•æœºçš„è®¾å¤‡ç¼–å·
+	public static String userIdentifying = "";				//å’•å’•å·
+	public static String userID = "";							//ç¬¬ä¸€æ¬¡ç»‘å®šæ—¶è·å¾—
 	public static String cookie = "";
 }
 
