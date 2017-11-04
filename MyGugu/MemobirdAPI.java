@@ -367,7 +367,7 @@ final class MyInfo		//个人信息
 	public static String memobirdID = "";			//咕咕机的设备编号
 	public static String userIdentifying = "";				//咕咕号
 	public static String userID = "";							//第一次绑定时获得
-	public static String cookie = "";
+	public static String cookie = "";			//抓包发现服务器给了cookies，加到包里去
 }
 
 
